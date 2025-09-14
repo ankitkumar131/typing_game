@@ -61,8 +61,7 @@ Typing Speed Challenge is a modern, feature-rich web application designed to hel
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd typing_game
+   https://github.com/ankitkumar131/typing_game.git
    ```
 
 2. **Install dependencies**
