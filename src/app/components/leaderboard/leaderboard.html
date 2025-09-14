@@ -1,0 +1,227 @@
+<div class="leaderboard-container">
+  <div class="leaderboard-header" @slideIn>
+    <h1>🏆 Global Leaderboard</h1>
+    <p>Compete with the best typists from around the world!</p>
+  </div>
+
+  <!-- Current User Stats -->
+  <div class="user-stats" @slideIn *ngIf="currentUserStats.totalGames > 0">
+    <h3>📊 Your Statistics</h3>
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-icon">💨</div>
+        <div class="stat-content">
+          <div class="stat-value">{{currentUserStats.bestWpm}}</div>
+          <div class="stat-label">Best WPM</div>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-icon">🎯</div>
+        <div class="stat-content">
+          <div class="stat-value">{{currentUserStats.bestAccuracy}}%</div>
+          <div class="stat-label">Best Accuracy</div>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-icon">💯</div>
+        <div class="stat-content">
+          <div class="stat-value">{{currentUserStats.bestScore | number}}</div>
+          <div class="stat-label">Best Score</div>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-icon">🎮</div>
+        <div class="stat-content">
+          <div class="stat-value">{{currentUserStats.totalGames}}</div>
+          <div class="stat-label">Games Played</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="user-rank" *ngIf="currentUserStats.rank">
+      <span class="rank-text">🏅 Your Global Rank: </span>
+      <span class="rank-value">#{{currentUserStats.rank}}</span>
+    </div>
+  </div>
+
+  <!-- No Data State -->
+  <div class="no-data" *ngIf="currentUserStats.totalGames === 0" @fadeIn>
+    <div class="no-data-content">
+      <h2>🎮 Join the Competition!</h2>
+      <p>Play your first game to see how you rank against other typists</p>
+      <button class="action-btn primary" (click)="goToGame()">
+        🚀 Start First Game
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="leaderboard-filters" @slideIn>
+    <h3>🔍 Filter Leaderboard</h3>
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label>Category:</label>
+        <select [(ngModel)]="filters.category" (change)="onFilterChange()">
+          <option *ngFor="let category of categories" [value]="category">
+            {{category}}
+          </option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label>Difficulty:</label>
+        <select [(ngModel)]="filters.difficulty" (change)="onFilterChange()">
+          <option *ngFor="let difficulty of difficulties" [value]="difficulty">
+            {{difficulty}}
+          </option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label>Timeframe:</label>
+        <select [(ngModel)]="filters.timeframe" (change)="onFilterChange()">
+          <option *ngFor="let timeframe of timeframes" [value]="timeframe.value">
+            {{timeframe.label}}
+          </option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label>Metric:</label>
+        <select [(ngModel)]="filters.metric" (change)="onFilterChange()">
+          <option *ngFor="let metric of metrics" [value]="metric.value">
+            {{metric.label}}
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top 3 Podium -->
+  <div class="podium" @slideIn *ngIf="getTopPerformers().length >= 3">
+    <h3>🏆 Top 3 Champions</h3>
+    <div class="podium-container">
+      <!-- 2nd Place -->
+      <div class="podium-place second" *ngIf="getTopPerformers()[1]">
+        <div class="place-icon">🥈</div>
+        <div class="place-value">{{getMetricValue(getTopPerformers()[1])}}{{getMetricUnit()}}</div>
+        <div class="place-rank">#2</div>
+        <div class="place-details">
+          {{getTopPerformers()[1].category}} • {{getTopPerformers()[1].difficulty}}
+        </div>
+      </div>
+      
+      <!-- 1st Place -->
+      <div class="podium-place first" *ngIf="getTopPerformers()[0]">
+        <div class="place-icon">🥇</div>
+        <div class="place-value champion">{{getMetricValue(getTopPerformers()[0])}}{{getMetricUnit()}}</div>
+        <div class="place-rank">#1</div>
+        <div class="place-details">
+          {{getTopPerformers()[0].category}} • {{getTopPerformers()[0].difficulty}}
+        </div>
+        <div class="champion-crown">👑</div>
+      </div>
+      
+      <!-- 3rd Place -->
+      <div class="podium-place third" *ngIf="getTopPerformers()[2]">
+        <div class="place-icon">🥉</div>
+        <div class="place-value">{{getMetricValue(getTopPerformers()[2])}}{{getMetricUnit()}}</div>
+        <div class="place-rank">#3</div>
+        <div class="place-details">
+          {{getTopPerformers()[2].category}} • {{getTopPerformers()[2].difficulty}}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaderboard Table -->
+  <div class="leaderboard-table" @slideIn>
+    <h3>📊 Full Rankings</h3>
+    
+    <div class="table-header">
+      <div class="header-cell rank">Rank</div>
+      <div class="header-cell metric">{{getMetricUnit()}}</div>
+      <div class="header-cell wpm">WPM</div>
+      <div class="header-cell accuracy">Accuracy</div>
+      <div class="header-cell score">Score</div>
+      <div class="header-cell category">Category</div>
+      <div class="header-cell difficulty">Difficulty</div>
+      <div class="header-cell date">Date</div>
+    </div>
+    
+    <div class="table-body">
+      <div *ngFor="let entry of filteredData; let i = index" 
+           class="table-row"
+           [class]="getRankClass(entry.rank)"
+           [class.current-user]="entry.isCurrentUser"
+           @fadeIn>
+        
+        <div class="table-cell rank">
+          <span class="rank-display">{{getRankIcon(entry.rank)}}</span>
+          <span class="you-indicator" *ngIf="entry.isCurrentUser">YOU</span>
+        </div>
+        
+        <div class="table-cell metric">
+          <span class="metric-value">{{getMetricValue(entry)}}</span>
+        </div>
+        
+        <div class="table-cell wpm">{{entry.wpm}}</div>
+        <div class="table-cell accuracy">{{entry.accuracy}}%</div>
+        <div class="table-cell score">{{entry.score | number}}</div>
+        <div class="table-cell category">{{entry.category}}</div>
+        <div class="table-cell difficulty">
+          <span class="difficulty-badge" [class]="entry.difficulty.toLowerCase()">
+            {{entry.difficulty}}
+          </span>
+        </div>
+        <div class="table-cell date">{{entry.date}}</div>
+      </div>
+    </div>
+    
+    <div class="no-results" *ngIf="filteredData.length === 0">
+      <p>🔍 No results found for the selected filters.</p>
+      <p>Try adjusting your filter criteria or play more games!</p>
+    </div>
+  </div>
+
+  <!-- Current User Position Highlight -->
+  <div class="user-position" *ngIf="getCurrentUserPosition()" @slideIn>
+    <h3>🏅 Your Position</h3>
+    <div class="position-card">
+      <div class="position-rank">{{getRankIcon(getCurrentUserPosition()!.rank)}}</div>
+      <div class="position-details">
+        <div class="position-metric">
+          {{getMetricValue(getCurrentUserPosition()!)}}{{getMetricUnit()}}
+        </div>
+        <div class="position-info">
+          {{getCurrentUserPosition()!.wpm}} WPM • 
+          {{getCurrentUserPosition()!.accuracy}}% accuracy • 
+          {{getCurrentUserPosition()!.score | number}} points
+        </div>
+        <div class="position-context">
+          {{getCurrentUserPosition()!.category}} category • 
+          {{getCurrentUserPosition()!.difficulty}} difficulty
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="leaderboard-actions" @slideIn>
+    <button class="action-btn primary" (click)="goToGame()">
+      🎮 Play Game
+    </button>
+    <button class="action-btn secondary" (click)="goToProfile()">
+      📊 View Profile
+    </button>
+    <button class="action-btn secondary" (click)="shareLeaderboard()">
+      📤 Share Leaderboard
+    </button>
+    <button class="action-btn secondary" (click)="goToHome()">
+      🏠 Home
+    </button>
+  </div>
+</div>

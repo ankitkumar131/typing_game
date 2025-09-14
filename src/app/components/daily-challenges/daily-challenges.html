@@ -1,0 +1,147 @@
+<div class="daily-challenges-container">
+  <!-- Header -->
+  <div class="challenges-header">
+    <h2>🏆 Daily Challenges</h2>
+    <p class="subtitle">Complete challenges to earn rewards and improve your skills!</p>
+    
+    <!-- Progress Summary -->
+    <div class="progress-summary">
+      <div class="progress-card">
+        <span class="progress-label">Today</span>
+        <span class="progress-value">{{ challengeProgress().todayCompleted }}/{{ challengeProgress().todayTotal }}</span>
+      </div>
+      <div class="progress-card">
+        <span class="progress-label">This Week</span>
+        <span class="progress-value">{{ challengeProgress().weeklyCompleted }}/{{ challengeProgress().weeklyTotal }}</span>
+      </div>
+      <div class="progress-card">
+        <span class="progress-label">Total Points</span>
+        <span class="progress-value">{{ challengeProgress().totalPoints }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Today's Challenges -->
+  <div class="challenges-section">
+    <h3>🌟 Today's Challenges</h3>
+    <div class="challenges-grid">
+      <div 
+        *ngFor="let challenge of todaysChallenges(); trackBy: trackChallenge"
+        class="challenge-card"
+        [class.completed]="challenge.isCompleted"
+        [@slideIn]
+      >
+        <div class="challenge-icon">
+          {{ getChallengeIcon(challenge.type) }}
+        </div>
+        
+        <div class="challenge-content">
+          <h4 class="challenge-title">{{ challenge.title }}</h4>
+          <p class="challenge-description">{{ challenge.description }}</p>
+          
+          <div class="challenge-target">
+            <span class="target-label">Target:</span>
+            <span class="target-value">{{ formatTarget(challenge.target) }}</span>
+          </div>
+          
+          <div class="challenge-meta">
+            <span class="difficulty">{{ challenge.difficulty }}</span>
+            <span class="category">{{ challenge.category }}</span>
+            <span class="attempts">{{ challenge.attempts }} attempts</span>
+          </div>
+        </div>
+        
+        <div class="challenge-rewards">
+          <div class="points">+{{ challenge.rewards.points }} pts</div>
+          <div *ngIf="challenge.rewards.badge" class="badge">{{ challenge.rewards.badge }}</div>
+        </div>
+        
+        <div class="challenge-actions">
+          <button 
+            *ngIf="!challenge.isCompleted"
+            class="btn btn-primary"
+            (click)="startChallenge(challenge)"
+          >
+            Start Challenge
+          </button>
+          <div *ngIf="challenge.isCompleted" class="completed-badge">
+            ✅ Completed!
+            <div *ngIf="challenge.bestScore" class="best-score">
+              Best: {{ challenge.bestScore }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weekly Overview -->
+  <div class="challenges-section">
+    <h3>📅 This Week's Progress</h3>
+    <div class="weekly-overview">
+      <div 
+        *ngFor="let challenge of weeklyChallenges(); trackBy: trackChallenge"
+        class="weekly-challenge"
+        [class.completed]="challenge.isCompleted"
+      >
+        <div class="challenge-day">
+          {{ formatChallengeDate(challenge.date) }}
+        </div>
+        <div class="challenge-summary">
+          <span class="challenge-name">{{ challenge.title }}</span>
+          <span class="challenge-status" [class]="challenge.isCompleted ? 'completed' : 'pending'">
+            {{ challenge.isCompleted ? 'Completed' : 'Pending' }}
+          </span>
+        </div>
+        <div class="challenge-reward">
+          {{ challenge.rewards.badge }} +{{ challenge.rewards.points }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Challenge Tips -->
+  <div class="challenges-section">
+    <h3>💡 Challenge Tips</h3>
+    <div class="tips-grid">
+      <div class="tip-card">
+        <div class="tip-icon">⚡</div>
+        <div class="tip-content">
+          <h4>Speed Challenges</h4>
+          <p>Focus on rhythm and consistency. Don't sacrifice accuracy for speed.</p>
+        </div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">🎯</div>
+        <div class="tip-content">
+          <h4>Accuracy Challenges</h4>
+          <p>Slow down and double-check each keystroke. Quality over quantity.</p>
+        </div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">🏃</div>
+        <div class="tip-content">
+          <h4>Endurance Challenges</h4>
+          <p>Pace yourself and maintain steady rhythm throughout the session.</p>
+        </div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">🔥</div>
+        <div class="tip-content">
+          <h4>Streak Challenges</h4>
+          <p>Stay focused and avoid distractions. One mistake resets your streak.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="challenges-actions">
+    <button class="btn btn-secondary" (click)="goBack()">
+      ← Back to Game
+    </button>
+    <button class="btn btn-outline" (click)="refreshChallenges()">
+      🔄 Refresh Challenges
+    </button>
+  </div>
+</div>

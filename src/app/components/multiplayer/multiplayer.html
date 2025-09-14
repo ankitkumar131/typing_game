@@ -1,0 +1,508 @@
+<div class="multiplayer-container">
+  <!-- Connection Status -->
+  <div class="connection-status" *ngIf="!multiplayerService.isConnected()">
+    <div class="status-card">
+      <h2>🌐 Connect to Multiplayer</h2>
+      <p>Join the global typing community!</p>
+      
+      <div class="connection-actions">
+        <button 
+          class="connect-btn primary"
+          (click)="connectToServer()"
+          [disabled]="isConnecting">
+          <span *ngIf="isConnecting">🔄 Connecting...</span>
+          <span *ngIf="!isConnecting">🚀 Connect</span>
+        </button>
+      </div>
+      
+      <div class="error-message" *ngIf="connectionError">
+        ⚠️ {{ connectionError }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Multiplayer Interface -->
+  <div class="multiplayer-main" *ngIf="multiplayerService.isConnected()">
+    
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+      <button 
+        class="tab-btn"
+        [class.active]="currentView === 'lobby'"
+        (click)="switchToLobbyView()">
+        🏠 Lobby
+      </button>
+      <button 
+        class="tab-btn"
+        [class.active]="currentView === 'social'"
+        (click)="switchToSocialView()">
+        👥 Social
+      </button>
+      <button 
+        class="tab-btn notification-tab"
+        [class.active]="currentView === 'social'"
+        (click)="switchToSocialView()">
+        🔔 Notifications
+        <span class="notification-badge" *ngIf="socialService.unreadNotifications().length > 0">
+          {{ socialService.unreadNotifications().length }}
+        </span>
+      </button>
+    </div>
+
+    <!-- Lobby View -->
+    <div class="lobby-view" *ngIf="currentView === 'lobby'" [@slideIn]>
+      
+      <!-- Player Info -->
+      <div class="player-info-card">
+        <div class="player-avatar">{{ multiplayerService.currentPlayer()?.avatar }}</div>
+        <div class="player-details">
+          <h3>{{ multiplayerService.currentPlayer()?.name }}</h3>
+          <div class="player-stats">
+            <span class="stat">🏆 Level {{ socialService.currentProfile()?.level || 1 }}</span>
+            <span class="stat">⚡ {{ multiplayerService.playerStats().bestWpm }} WPM Best</span>
+            <span class="stat">🎯 {{ multiplayerService.playerStats().averageAccuracy }}% Avg</span>
+          </div>
+        </div>
+        <button class="disconnect-btn" (click)="disconnect()">🔌 Disconnect</button>
+      </div>
+
+      <!-- Room Creation -->
+      <div class="room-creation">
+        <button 
+          class="create-room-btn primary"
+          (click)="toggleCreateRoom()"
+          *ngIf="!showCreateRoom">
+          ➕ Create Room
+        </button>
+
+        <div class="create-room-form" *ngIf="showCreateRoom" [@slideIn]>
+          <h3>🏗️ Create New Room</h3>
+          
+          <div class="form-row">
+            <label>Room Name:</label>
+            <input 
+              type="text" 
+              [(ngModel)]="roomForm.name" 
+              placeholder="Enter room name"
+              maxlength="30">
+          </div>
+
+          <div class="form-row-group">
+            <div class="form-row">
+              <label>Max Players:</label>
+              <select [(ngModel)]="roomForm.maxPlayers">
+                <option value="2">2 Players</option>
+                <option value="4">4 Players</option>
+                <option value="6">6 Players</option>
+                <option value="8">8 Players</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <label>Duration:</label>
+              <select [(ngModel)]="roomForm.duration">
+                <option value="30">30 seconds</option>
+                <option value="60">1 minute</option>
+                <option value="120">2 minutes</option>
+                <option value="180">3 minutes</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row-group">
+            <div class="form-row">
+              <label>Difficulty:</label>
+              <select [(ngModel)]="roomForm.difficulty">
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+                <option value="Expert">Expert</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <label>Category:</label>
+              <select [(ngModel)]="roomForm.category">
+                <option value="Common">Common Words</option>
+                <option value="Programming">Programming</option>
+                <option value="Literature">Literature</option>
+                <option value="Science">Science</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="roomForm.isPrivate">
+              🔒 Private Room
+            </label>
+          </div>
+
+          <div class="form-row" *ngIf="roomForm.isPrivate">
+            <label>Password:</label>
+            <input 
+              type="password" 
+              [(ngModel)]="roomForm.password" 
+              placeholder="Enter password">
+          </div>
+
+          <div class="form-actions">
+            <button class="btn secondary" (click)="toggleCreateRoom()">Cancel</button>
+            <button class="btn primary" (click)="createRoom()" [disabled]="!roomForm.name.trim()">
+              🚀 Create Room
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Available Rooms -->
+      <div class="available-rooms">
+        <h3>🌐 Available Rooms</h3>
+        
+        <div class="rooms-list">
+          <div 
+            class="room-card"
+            *ngFor="let room of multiplayerService.availableRooms(); trackBy: trackByRoomId"
+            [@fadeIn]>
+            
+            <div class="room-header">
+              <h4>{{ room.name }}</h4>
+              <div class="room-status" [style.color]="getRoomStatusColor(room.status)">
+                {{ room.status | titlecase }}
+              </div>
+            </div>
+            
+            <div class="room-details">
+              <div class="room-info">
+                <span class="info-item">
+                  👥 {{ room.players.length }}/{{ room.maxPlayers }}
+                </span>
+                <span class="info-item">
+                  ⏱️ {{ room.gameSettings.duration }}s
+                </span>
+                <span class="info-item">
+                  📊 {{ room.gameSettings.difficulty }}
+                </span>
+                <span class="info-item">
+                  📚 {{ room.gameSettings.category }}
+                </span>
+              </div>
+              
+              <div class="room-players">
+                <span 
+                  class="player-avatar small"
+                  *ngFor="let player of room.players"
+                  [title]="player.name">
+                  {{ player.avatar }}
+                </span>
+              </div>
+            </div>
+            
+            <div class="room-actions">
+              <button 
+                class="join-btn"
+                (click)="joinRoom(room.id)"
+                [disabled]="room.players.length >= room.maxPlayers || room.status !== 'waiting'">
+                {{ room.players.length >= room.maxPlayers ? '👥 Full' : '🎮 Join' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="no-rooms" *ngIf="multiplayerService.availableRooms().length === 0">
+          <p>🏗️ No rooms available. Create one to get started!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Room View -->
+    <div class="room-view" *ngIf="currentView === 'room'" [@slideIn]>
+      <div class="room-header">
+        <h2>🏠 {{ multiplayerService.currentRoom()?.name }}</h2>
+        <button class="leave-btn" (click)="leaveRoom()">🚪 Leave Room</button>
+      </div>
+
+      <div class="room-content">
+        <div class="players-section">
+          <h3>👥 Players ({{ getCurrentRoomPlayerCount() }}/{{ getCurrentRoomMaxPlayers() }})</h3>
+          
+          <div class="players-grid">
+            <div 
+              class="player-card"
+              *ngFor="let player of multiplayerService.currentRoom()?.players; trackBy: trackByPlayerId"
+              [class.host]="player.isHost"
+              [class.ready]="player.isReady">
+              
+              <div class="player-avatar">{{ player.avatar }}</div>
+              <div class="player-info">
+                <div class="player-name">
+                  {{ player.name }}
+                  <span class="host-badge" *ngIf="player.isHost">👑</span>
+                </div>
+                <div class="player-status">
+                  {{ getStatusIcon(player.status) }} {{ player.status | titlecase }}
+                  <span class="ready-status" *ngIf="player.isReady">✅ Ready</span>
+                </div>
+              </div>
+              
+              <div class="player-actions" *ngIf="multiplayerService.isHost() && !player.isHost">
+                <button class="kick-btn" (click)="kickPlayer(player.id)">🦵 Kick</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="room-controls">
+            <button 
+              class="ready-btn"
+              (click)="toggleReady()"
+              [class.ready]="multiplayerService.currentPlayer()?.isReady">
+              {{ multiplayerService.currentPlayer()?.isReady ? '⏸️ Not Ready' : '✅ Ready' }}
+            </button>
+
+            <button 
+              class="start-btn primary"
+              *ngIf="multiplayerService.isHost()"
+              (click)="startGame()"
+              [disabled]="!multiplayerService.canStartGame()">
+              🚀 Start Game
+            </button>
+
+            <button 
+              class="invite-btn"
+              (click)="toggleInviteFriends()">
+              📧 Invite Friends
+            </button>
+          </div>
+        </div>
+
+        <div class="game-settings">
+          <h3>⚙️ Game Settings</h3>
+          <div class="settings-grid">
+            <div class="setting-item">
+              <span class="setting-label">Duration:</span>
+              <span class="setting-value">{{ getCurrentRoomSettings().duration }}s</span>
+            </div>
+            <div class="setting-item">
+              <span class="setting-label">Difficulty:</span>
+              <span class="setting-value">{{ getCurrentRoomSettings().difficulty }}</span>
+            </div>
+            <div class="setting-item">
+              <span class="setting-label">Category:</span>
+              <span class="setting-value">{{ getCurrentRoomSettings().category }}</span>
+            </div>
+            <div class="setting-item">
+              <span class="setting-label">Max Players:</span>
+              <span class="setting-value">{{ getCurrentRoomSettings().maxPlayers }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Section -->
+      <div class="chat-section">
+        <h3>💬 Chat</h3>
+        <div class="chat-messages">
+          <div 
+            class="chat-message"
+            *ngFor="let message of chatMessages.slice(-10)">
+            <span class="message-time">{{ formatTime(message.timestamp) }}</span>
+            <span class="message-author">{{ message.playerName }}:</span>
+            <span class="message-text">{{ message.message }}</span>
+          </div>
+        </div>
+        
+        <div class="chat-input">
+          <input 
+            type="text"
+            [(ngModel)]="currentMessage"
+            (keyup.enter)="sendChatMessage()"
+            placeholder="Type a message..."
+            maxlength="200">
+          <button (click)="sendChatMessage()" [disabled]="!currentMessage.trim()">
+            📤 Send
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Social View -->
+    <div class="social-view" *ngIf="currentView === 'social'" [@slideIn]>
+      
+      <!-- Friend Search -->
+      <div class="friend-search">
+        <h3>🔍 Find Friends</h3>
+        <div class="search-bar">
+          <input 
+            type="text"
+            [(ngModel)]="searchQuery"
+            (input)="searchUsers()"
+            placeholder="Search by username...">
+        </div>
+        
+        <div class="search-results" *ngIf="searchResults.length > 0">
+          <div 
+            class="user-card"
+            *ngFor="let user of searchResults">
+            <div class="user-avatar">{{ user.avatar }}</div>
+            <div class="user-info">
+              <div class="user-name">{{ user.displayName }}</div>
+              <div class="user-stats">Level {{ user.level }} • {{ user.wpm }} WPM</div>
+            </div>
+            <button class="add-friend-btn" (click)="sendFriendRequest(user.id)">
+              ➕ Add Friend
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Friends List -->
+      <div class="friends-section">
+        <h3>👥 Friends ({{ socialService.friends().length }})</h3>
+        
+        <div class="friends-list">
+          <div 
+            class="friend-card"
+            *ngFor="let friend of socialService.friends()">
+            <div class="friend-avatar">{{ friend.avatar }}</div>
+            <div class="friend-info">
+              <div class="friend-name">{{ friend.displayName }}</div>
+              <div class="friend-status">
+                {{ getStatusIcon(friend.status) }} {{ friend.status | titlecase }}
+              </div>
+              <div class="friend-stats">{{ friend.wpm }} WPM • Level {{ friend.level }}</div>
+            </div>
+            <div class="friend-actions">
+              <button class="challenge-btn" (click)="sendChallenge(friend.id)">
+                ⚔️ Challenge
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="no-friends" *ngIf="socialService.friends().length === 0">
+          <p>👫 No friends yet. Search for users to add them!</p>
+        </div>
+      </div>
+
+      <!-- Friend Requests -->
+      <div class="friend-requests" *ngIf="socialService.pendingFriendRequests().length > 0">
+        <h3>📬 Friend Requests ({{ socialService.pendingFriendRequests().length }})</h3>
+        
+        <div 
+          class="request-card"
+          *ngFor="let request of socialService.pendingFriendRequests()">
+          <div class="request-avatar">{{ request.fromAvatar }}</div>
+          <div class="request-info">
+            <div class="request-name">{{ request.fromDisplayName }}</div>
+            <div class="request-message" *ngIf="request.message">{{ request.message }}</div>
+            <div class="request-time">{{ formatRelativeTime(request.timestamp) }}</div>
+          </div>
+          <div class="request-actions">
+            <button class="accept-btn" (click)="acceptFriendRequest(request.id)">✅ Accept</button>
+            <button class="decline-btn" (click)="declineFriendRequest(request.id)">❌ Decline</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Challenges -->
+      <div class="challenges-section" *ngIf="socialService.pendingChallenges().length > 0">
+        <h3>⚔️ Challenges ({{ socialService.pendingChallenges().length }})</h3>
+        
+        <div 
+          class="challenge-card"
+          *ngFor="let challenge of socialService.pendingChallenges()">
+          <div class="challenge-info">
+            <div class="challenge-from">Challenge from {{ challenge.fromUsername }}</div>
+            <div class="challenge-details">
+              {{ challenge.gameMode | titlecase }} • {{ challenge.settings.duration }}s • {{ challenge.settings.difficulty }}
+            </div>
+            <div class="challenge-message" *ngIf="challenge.message">{{ challenge.message }}</div>
+          </div>
+          <div class="challenge-actions">
+            <button class="accept-btn" (click)="acceptChallenge(challenge.id)">⚔️ Accept</button>
+            <button class="decline-btn" (click)="declineChallenge(challenge.id)">❌ Decline</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notifications -->
+      <div class="notifications-section">
+        <div class="notifications-header">
+          <h3>🔔 Notifications ({{ socialService.unreadNotifications().length }} unread)</h3>
+          <button 
+            class="mark-all-read-btn"
+            (click)="markAllNotificationsAsRead()"
+            *ngIf="socialService.unreadNotifications().length > 0">
+            ✅ Mark All Read
+          </button>
+        </div>
+        
+        <div class="notifications-list">
+          <div 
+            class="notification-card"
+            *ngFor="let notification of socialService.notifications().slice(0, 10); trackBy: trackByNotificationId"
+            [class.unread]="!notification.isRead">
+            
+            <div class="notification-icon">{{ notification.icon }}</div>
+            <div class="notification-content">
+              <div class="notification-title">{{ notification.title }}</div>
+              <div class="notification-message">{{ notification.message }}</div>
+              <div class="notification-time">{{ formatRelativeTime(notification.timestamp) }}</div>
+            </div>
+            <div class="notification-actions">
+              <button 
+                class="mark-read-btn"
+                *ngIf="!notification.isRead"
+                (click)="markNotificationAsRead(notification.id)">
+                ✅
+              </button>
+              <button 
+                class="delete-btn"
+                (click)="deleteNotification(notification.id)">
+                🗑️
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="no-notifications" *ngIf="socialService.notifications().length === 0">
+          <p>🔕 No notifications yet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Friend Invite Modal -->
+    <div class="invite-modal" *ngIf="showInviteFriends" [@fadeIn]>
+      <div class="modal-overlay" (click)="toggleInviteFriends()"></div>
+      <div class="modal-content">
+        <h3>📧 Invite Friends</h3>
+        
+        <div class="friends-selection">
+          <div 
+            class="friend-selection-item"
+            *ngFor="let friend of socialService.onlineFriends()"
+            (click)="toggleFriendSelection(friend.id)"
+            [class.selected]="selectedFriends.includes(friend.id)">
+            
+            <div class="friend-avatar">{{ friend.avatar }}</div>
+            <div class="friend-name">{{ friend.displayName }}</div>
+            <div class="selection-checkbox">
+              {{ selectedFriends.includes(friend.id) ? '✅' : '⬜' }}
+            </div>
+          </div>
+        </div>
+        
+        <div class="modal-actions">
+          <button class="btn secondary" (click)="toggleInviteFriends()">Cancel</button>
+          <button 
+            class="btn primary" 
+            (click)="inviteSelectedFriends()"
+            [disabled]="selectedFriends.length === 0">
+            📧 Send Invites ({{ selectedFriends.length }})
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

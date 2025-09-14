@@ -1,0 +1,162 @@
+<div class="settings-container">
+  <div class="settings-header" @slideIn>
+    <h1>⚙️ Settings</h1>
+    <p>Customize your typing experience</p>
+  </div>
+
+  <div class="settings-content">
+    <!-- Appearance Settings -->
+    <div class="settings-section" @slideIn>
+      <h2>🎨 Appearance</h2>
+      
+      <div class="setting-item">
+        <label for="theme">Theme:</label>
+        <select id="theme" [(ngModel)]="settings.theme">
+          <option *ngFor="let theme of themes" [value]="theme.value">
+            {{theme.label}}
+          </option>
+        </select>
+      </div>
+      
+      <div class="setting-item">
+        <label for="fontSize">Font Size:</label>
+        <select id="fontSize" [(ngModel)]="settings.fontSize">
+          <option *ngFor="let size of fontSizes" [value]="size.value">
+            {{size.label}}
+          </option>
+        </select>
+      </div>
+      
+      <div class="setting-item checkbox">
+        <label>
+          <input type="checkbox" [(ngModel)]="settings.colorBlindFriendly">
+          <span class="checkmark"></span>
+          Color Blind Friendly Mode
+        </label>
+        <small>Uses alternative colors for better accessibility</small>
+      </div>
+      
+      <div class="setting-item checkbox">
+        <label>
+          <input type="checkbox" [(ngModel)]="settings.enableAnimations">
+          <span class="checkmark"></span>
+          Enable Animations
+        </label>
+        <small>Smooth transitions and visual effects</small>
+      </div>
+    </div>
+
+    <!-- Sound Settings -->
+    <div class="settings-section" @slideIn>
+      <h2>🔊 Sound</h2>
+      
+      <div class="setting-item checkbox">
+        <label>
+          <input type="checkbox" [(ngModel)]="settings.soundEnabled">
+          <span class="checkmark"></span>
+          Enable Sound Effects
+        </label>
+        <small>Audio feedback for typing actions</small>
+      </div>
+      
+      <div class="setting-item" *ngIf="settings.soundEnabled">
+        <label for="volume">Volume:</label>
+        <div class="volume-control">
+          <input 
+            type="range" 
+            id="volume" 
+            min="0" 
+            max="1" 
+            step="0.1" 
+            [(ngModel)]="settings.soundVolume">
+          <span class="volume-value">{{(settings.soundVolume * 100) | number:'1.0-0'}}%</span>
+          <button class="test-sound-btn" (click)="testSound()">🔊 Test</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gameplay Settings -->
+    <div class="settings-section" @slideIn>
+      <h2>🎮 Gameplay</h2>
+      
+      <div class="setting-item">
+        <label for="keyboard">Keyboard Layout:</label>
+        <select id="keyboard" [(ngModel)]="settings.keyboardLayout">
+          <option *ngFor="let layout of keyboardLayouts" [value]="layout.value">
+            {{layout.label}}
+          </option>
+        </select>
+      </div>
+      
+      <div class="setting-item checkbox">
+        <label>
+          <input type="checkbox" [(ngModel)]="settings.showWpmInRealTime">
+          <span class="checkmark"></span>
+          Show WPM in Real-time
+        </label>
+        <small>Display words per minute during typing</small>
+      </div>
+      
+      <div class="setting-item checkbox">
+        <label>
+          <input type="checkbox" [(ngModel)]="settings.showAccuracyInRealTime">
+          <span class="checkmark"></span>
+          Show Accuracy in Real-time
+        </label>
+        <small>Display typing accuracy percentage</small>
+      </div>
+      
+      <div class="setting-item checkbox">
+        <label>
+          <input type="checkbox" [(ngModel)]="settings.autoCapitalize">
+          <span class="checkmark"></span>
+          Auto Capitalize
+        </label>
+        <small>Automatically capitalize first letters</small>
+      </div>
+    </div>
+
+    <!-- Data Management -->
+    <div class="settings-section" @slideIn>
+      <h2>💾 Data Management</h2>
+      
+      <div class="data-actions">
+        <button class="action-btn secondary" (click)="exportSettings()">
+          📎 Export Settings
+        </button>
+        
+        <div class="import-wrapper">
+          <label for="import-file" class="action-btn secondary import-btn">
+            📁 Import Settings
+          </label>
+          <input 
+            id="import-file" 
+            type="file" 
+            accept=".json" 
+            (change)="importSettings($event)"
+            style="display: none;">
+        </div>
+        
+        <button class="action-btn danger" (click)="resetSettings()">
+          🔄 Reset to Default
+        </button>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="settings-actions" @slideIn>
+      <button class="action-btn primary" (click)="saveSettings()">
+        ✓ Save Settings
+      </button>
+      <button class="action-btn secondary" (click)="goToGame()">
+        🎮 Play Game
+      </button>
+      <button class="action-btn secondary" (click)="goToProfile()">
+        📊 View Profile
+      </button>
+      <button class="action-btn secondary" (click)="goToHome()">
+        🏠 Home
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,704 @@
+.keyboard-container {
+  --key-default-color: #f8f9fa;
+  --key-active-color: #007bff;
+  --key-border-color: #dee2e6;
+  --key-hover-color: #e9ecef;
+  --key-text-color: #495057;
+  
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1rem;
+  user-select: none;
+}
+
+// Controls
+.keyboard-controls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  .control-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: #495057;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-1px);
+    }
+
+    &.active {
+      background: #007bff;
+      color: white;
+      border-color: #007bff;
+    }
+
+    .btn-icon {
+      font-size: 1rem;
+    }
+
+    .btn-text {
+      font-weight: 500;
+    }
+  }
+}
+
+// Hand visualization
+.hands-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  gap: 2rem;
+
+  .hand {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    .hand-title {
+      text-align: center;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #495057;
+      font-size: 1.1rem;
+    }
+
+    .fingers {
+      display: flex;
+      justify-content: space-around;
+      gap: 0.5rem;
+    }
+
+    .finger-indicator {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.75rem 0.5rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      flex: 1;
+      min-width: 0;
+      opacity: 0.7;
+
+      &.active {
+        opacity: 1;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .finger-name {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: white;
+        text-align: center;
+        margin-bottom: 0.25rem;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+      }
+
+      .home-key {
+        font-size: 1rem;
+        font-weight: bold;
+        color: white;
+        background: rgba(0, 0, 0, 0.2);
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+        font-family: 'Courier New', monospace;
+      }
+    }
+  }
+}
+
+// Keyboard layout
+.keyboard {
+  background: linear-gradient(145deg, #f0f0f0, #e0e0e0);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border: 2px solid #ddd;
+
+  &.compact {
+    padding: 0.5rem;
+    
+    .key {
+      padding: 0.4rem;
+      font-size: 0.8rem;
+    }
+  }
+}
+
+.keyboard-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.2rem;
+  margin-bottom: 0.3rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  // Row-specific spacing
+  &.number-row {
+    margin-bottom: 0.4rem;
+  }
+
+  &.space-row {
+    margin-top: 0.4rem;
+    justify-content: center;
+  }
+}
+
+// Individual keys
+.key {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  background: var(--key-default-color);
+  border: 2px solid var(--key-border-color);
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--key-text-color);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    inset 0 1px 2px rgba(255, 255, 255, 0.5),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.1);
+
+  // Key sizes
+  &.key-normal {
+    min-width: 40px;
+    padding: 0.5rem;
+  }
+
+  &.key-wide {
+    min-width: 60px;
+    padding: 0.5rem 1rem;
+  }
+
+  &.key-extra-wide {
+    min-width: 80px;
+    padding: 0.5rem 1.5rem;
+  }
+
+  // Special space key
+  &.key-space .key-content {
+    min-width: 200px;
+  }
+
+  // Key states
+  &:hover:not(.highlighted) {
+    background: var(--key-hover-color);
+    transform: translateY(-1px);
+    box-shadow: 
+      0 4px 8px rgba(0, 0, 0, 0.15),
+      inset 0 1px 2px rgba(255, 255, 255, 0.5);
+  }
+
+  &:active {
+    transform: translateY(1px);
+    box-shadow: 
+      0 1px 2px rgba(0, 0, 0, 0.1),
+      inset 0 1px 2px rgba(0, 0, 0, 0.2);
+  }
+
+  // Key highlights
+  &.highlighted {
+    animation: keyPulse 1s infinite alternate;
+  }
+
+  &.highlight-current {
+    background: #007bff !important;
+    color: white !important;
+    border-color: #0056b3 !important;
+    box-shadow: 
+      0 0 0 3px rgba(0, 123, 255, 0.3),
+      0 4px 8px rgba(0, 123, 255, 0.2);
+  }
+
+  &.highlight-next {
+    background: #28a745 !important;
+    color: white !important;
+    border-color: #1e7e34 !important;
+    box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.3);
+  }
+
+  &.highlight-correct {
+    background: #28a745 !important;
+    color: white !important;
+    border-color: #1e7e34 !important;
+    animation: correctPulse 0.5s ease;
+  }
+
+  &.highlight-incorrect {
+    background: #dc3545 !important;
+    color: white !important;
+    border-color: #c82333 !important;
+    animation: incorrectShake 0.5s ease;
+  }
+
+  &.finger-active {
+    border-width: 3px;
+    transform: translateY(-1px);
+  }
+
+  &.home-key {
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 6px;
+      height: 2px;
+      background: currentColor;
+      border-radius: 1px;
+      opacity: 0.6;
+    }
+  }
+
+  // Key content
+  .key-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+
+    .key-main {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      
+      &.space-key {
+        font-size: 0.7rem;
+        opacity: 0.7;
+        letter-spacing: 0.1em;
+      }
+    }
+
+    .finger-dot {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      opacity: 0.8;
+    }
+
+    .home-indicator {
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 8px;
+      height: 2px;
+      border: 1px solid;
+      border-radius: 1px;
+    }
+
+    .key-highlight {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 4px;
+      pointer-events: none;
+    }
+  }
+}
+
+// Typing instructions
+.typing-instructions {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  .instruction-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .current-instruction {
+    flex: 1;
+
+    .instruction-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+
+      .instruction-icon {
+        font-size: 1.5rem;
+      }
+
+      .instruction-title {
+        font-weight: 600;
+        color: #495057;
+      }
+    }
+
+    .char-display {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+
+      .target-char {
+        font-size: 3rem;
+        font-weight: bold;
+        font-family: 'Courier New', monospace;
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 12px;
+        border: 3px solid #007bff;
+        box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+        animation: charPulse 2s infinite;
+      }
+
+      .finger-name {
+        font-weight: 600;
+        font-size: 1.1rem;
+        text-transform: capitalize;
+      }
+    }
+  }
+
+  .next-chars {
+    flex: 1;
+    text-align: center;
+
+    .preview-title {
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 1rem;
+    }
+
+    .char-preview {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+
+      .preview-char {
+        font-size: 1.5rem;
+        font-weight: bold;
+        font-family: 'Courier New', monospace;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 0.5rem;
+        border-radius: 6px;
+        border: 2px solid currentColor;
+        transition: all 0.3s ease;
+      }
+    }
+  }
+}
+
+// Typing statistics
+.typing-stats {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+  display: flex;
+  gap: 2rem;
+
+  .stat-item {
+    flex: 1;
+
+    .stat-label {
+      display: block;
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+  }
+
+  .hand-usage-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .usage-bar {
+      position: relative;
+      background: #e9ecef;
+      height: 24px;
+      border-radius: 12px;
+      overflow: hidden;
+
+      .usage-fill {
+        height: 100%;
+        border-radius: 12px;
+        transition: width 0.5s ease;
+      }
+
+      .usage-label {
+        position: absolute;
+        top: 50%;
+        left: 8px;
+        transform: translateY(-50%);
+        font-size: 0.75rem;
+        font-weight: bold;
+        color: white;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+      }
+
+      &.left-hand-bar .usage-fill {
+        background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
+      }
+
+      &.right-hand-bar .usage-fill {
+        background: linear-gradient(90deg, #ffeaa7, #a29bfe);
+      }
+    }
+  }
+
+  .finger-stress {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    height: 60px;
+    gap: 0.25rem;
+
+    .stress-indicator {
+      flex: 1;
+      min-height: 4px;
+      border-radius: 2px 2px 0 0;
+      transition: height 0.5s ease;
+      opacity: 0.8;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes keyPulse {
+  0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); }
+  100% { box-shadow: 0 0 0 8px rgba(0, 123, 255, 0); }
+}
+
+@keyframes correctPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(40, 167, 69, 0.6); }
+  100% { transform: scale(1); }
+}
+
+@keyframes incorrectShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+@keyframes charPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+// Dark theme support
+body.theme-dark {
+  .keyboard-container {
+    --key-default-color: #495057;
+    --key-hover-color: #6c757d;
+    --key-border-color: #6c757d;
+    --key-text-color: #f8f9fa;
+  }
+
+  .keyboard {
+    background: linear-gradient(145deg, #3a3a3a, #2a2a2a);
+    border-color: #555;
+  }
+
+  .typing-instructions {
+    background: rgba(0, 0, 0, 0.7);
+    border-color: rgba(255, 255, 255, 0.1);
+
+    .instruction-title {
+      color: #e0e0e0;
+    }
+
+    .target-char {
+      background: #495057;
+      color: white;
+    }
+
+    .preview-char {
+      background: rgba(0, 0, 0, 0.5);
+      color: currentColor;
+    }
+  }
+
+  .hands-container .hand {
+    background: rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.1);
+
+    .hand-title {
+      color: #e0e0e0;
+    }
+  }
+
+  .typing-stats {
+    background: rgba(0, 0, 0, 0.3);
+
+    .stat-label {
+      color: #e0e0e0;
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .keyboard-container {
+    padding: 0.5rem;
+  }
+
+  .keyboard {
+    padding: 0.5rem;
+    
+    .key {
+      min-height: 32px;
+      font-size: 0.8rem;
+      
+      &.key-normal {
+        min-width: 32px;
+        padding: 0.3rem;
+      }
+      
+      &.key-wide {
+        min-width: 48px;
+        padding: 0.3rem 0.6rem;
+      }
+      
+      &.key-extra-wide {
+        min-width: 64px;
+        padding: 0.3rem 1rem;
+      }
+    }
+  }
+
+  .hands-container {
+    flex-direction: column;
+    gap: 1rem;
+
+    .finger-indicator {
+      padding: 0.5rem 0.25rem;
+
+      .finger-name {
+        font-size: 0.65rem;
+      }
+
+      .home-key {
+        font-size: 0.85rem;
+      }
+    }
+  }
+
+  .typing-instructions {
+    padding: 1rem;
+
+    .instruction-content {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .target-char {
+      font-size: 2rem;
+      padding: 0.75rem;
+    }
+  }
+
+  .typing-stats {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .keyboard-controls {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+
+    .control-btn {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.8rem;
+    }
+  }
+
+  .keyboard .key {
+    min-height: 28px;
+    font-size: 0.7rem;
+
+    &.key-normal {
+      min-width: 28px;
+      padding: 0.2rem;
+    }
+  }
+}
+
+// Accessibility improvements
+@media (prefers-reduced-motion: reduce) {
+  .key,
+  .finger-indicator,
+  .usage-fill,
+  .stress-indicator {
+    transition: none;
+  }
+
+  .key.highlighted,
+  .target-char {
+    animation: none;
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .keyboard-container {
+    --key-default-color: white;
+    --key-border-color: black;
+    --key-text-color: black;
+  }
+
+  .key {
+    border-width: 2px;
+    
+    &.highlight-current {
+      background: #000080 !important;
+      border-color: #000080 !important;
+    }
+    
+    &.highlight-correct {
+      background: #008000 !important;
+      border-color: #008000 !important;
+    }
+    
+    &.highlight-incorrect {
+      background: #800000 !important;
+      border-color: #800000 !important;
+    }
+  }
+}

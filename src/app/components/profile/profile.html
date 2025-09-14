@@ -1,0 +1,236 @@
+<div class="profile-container">
+  <div class="profile-header" @slideIn>
+    <h1>📈 Your Typing Profile</h1>
+    <p>Track your progress and analyze your typing performance</p>
+  </div>
+
+  <!-- No Data State -->
+  <div class="no-data" *ngIf="userStats.totalGames === 0" @fadeIn>
+    <div class="no-data-content">
+      <h2>🎮 No typing data yet!</h2>
+      <p>Start playing to see your statistics and progress</p>
+      <button class="action-btn primary" (click)="goToGame()">
+        🚀 Start First Game
+      </button>
+    </div>
+  </div>
+
+  <!-- Profile Dashboard -->
+  <div class="profile-dashboard" *ngIf="userStats.totalGames > 0">
+    <!-- Stats Overview -->
+    <div class="stats-overview" @slideIn>
+      <h2>🏆 Performance Overview</h2>
+      <div class="stats-grid">
+        <div class="stat-card primary">
+          <div class="stat-icon">💨</div>
+          <div class="stat-content">
+            <div class="stat-number">{{userStats.averageWpm}}</div>
+            <div class="stat-label">Average WPM</div>
+            <div class="stat-best">Best: {{userStats.bestWpm}}</div>
+          </div>
+        </div>
+        
+        <div class="stat-card secondary">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-content">
+            <div class="stat-number">{{userStats.averageAccuracy}}%</div>
+            <div class="stat-label">Average Accuracy</div>
+            <div class="stat-best">Best: {{userStats.bestAccuracy}}%</div>
+          </div>
+        </div>
+        
+        <div class="stat-card tertiary">
+          <div class="stat-icon">🏆</div>
+          <div class="stat-content">
+            <div class="stat-number">{{userStats.bestScore | number}}</div>
+            <div class="stat-label">Best Score</div>
+            <div class="stat-subtitle">Total: {{userStats.totalScore | number}}</div>
+          </div>
+        </div>
+        
+        <div class="stat-card quaternary">
+          <div class="stat-icon">🎮</div>
+          <div class="stat-content">
+            <div class="stat-number">{{userStats.totalGames}}</div>
+            <div class="stat-label">Games Played</div>
+            <div class="stat-subtitle">{{formatTime(userStats.totalTimeSpent)}} total</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Analysis -->
+    <div class="progress-analysis" @slideIn>
+      <h3>📈 Progress Analysis</h3>
+      <div class="analysis-card">
+        <p class="analysis-text">{{getProgressAnalysis()}}</p>
+        <div class="quick-stats">
+          <div class="quick-stat">
+            <span class="quick-label">Words Typed:</span>
+            <span class="quick-value">{{userStats.totalWordsTyped | number}}</span>
+          </div>
+          <div class="quick-stat">
+            <span class="quick-label">Achievements:</span>
+            <span class="quick-value">{{userStats.achievementsUnlocked}}</span>
+          </div>
+          <div class="quick-stat">
+            <span class="quick-label">Favorite Category:</span>
+            <span class="quick-value">{{userStats.favoriteCategory}}</span>
+          </div>
+          <div class="quick-stat">
+            <span class="quick-label">Preferred Difficulty:</span>
+            <span class="quick-value">{{userStats.favoriteDifficulty}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance Chart -->
+    <div class="performance-chart" @slideIn>
+      <h3>📊 Performance Trends</h3>
+      
+      <div class="chart-controls">
+        <div class="control-group">
+          <label>Timeframe:</label>
+          <select [(ngModel)]="selectedTimeframe" (change)="onTimeframeChange(selectedTimeframe)">
+            <option value="7">Last 7 days</option>
+            <option value="30">Last 30 days</option>
+            <option value="90">Last 3 months</option>
+            <option value="365">Last year</option>
+          </select>
+        </div>
+        
+        <div class="control-group">
+          <label>Metric:</label>
+          <select [(ngModel)]="selectedMetric" (change)="onMetricChange(selectedMetric)">
+            <option value="wpm">Words Per Minute</option>
+            <option value="accuracy">Accuracy</option>
+            <option value="score">Score</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="chart-container">
+        <div class="chart-header">
+          <h4>{{getMetricLabel()}} Over Time</h4>
+        </div>
+        
+        <div class="simple-chart" *ngIf="chartData.labels.length > 0">
+          <div class="chart-bars">
+            <div *ngFor="let value of getCurrentData(); let i = index" 
+                 class="chart-bar"
+                 [style.height.%]="getBarHeight(value)"
+                 [title]="chartData.labels[i] + ': ' + value">
+              <span class="bar-label">{{value}}</span>
+            </div>
+          </div>
+          <div class="chart-labels">
+            <span *ngFor="let label of chartData.labels" class="chart-label">
+              {{label}}
+            </span>
+          </div>
+        </div>
+        
+        <div class="no-chart-data" *ngIf="chartData.labels.length === 0">
+          <p>📈 No data for selected timeframe. Play more games to see trends!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Personal Bests -->
+    <div class="personal-bests" @slideIn *ngIf="getPersonalBests()">
+      <h3>🎆 Personal Bests</h3>
+      <div class="bests-grid">
+        <div class="best-card speed">
+          <div class="best-icon">⚡</div>
+          <div class="best-content">
+            <div class="best-title">Fastest Typing</div>
+            <div class="best-value">{{getPersonalBests().wpm.wpm}} WPM</div>
+            <div class="best-details">
+              {{getPersonalBests().wpm.accuracy}}% accuracy • {{formatDate(getPersonalBests().wpm.timestamp)}}
+            </div>
+          </div>
+        </div>
+        
+        <div class="best-card accuracy">
+          <div class="best-icon">🎯</div>
+          <div class="best-content">
+            <div class="best-title">Most Accurate</div>
+            <div class="best-value">{{getPersonalBests().accuracy.accuracy}}%</div>
+            <div class="best-details">
+              {{getPersonalBests().accuracy.wpm}} WPM • {{formatDate(getPersonalBests().accuracy.timestamp)}}
+            </div>
+          </div>
+        </div>
+        
+        <div class="best-card score">
+          <div class="best-icon">💯</div>
+          <div class="best-content">
+            <div class="best-title">Highest Score</div>
+            <div class="best-value">{{getPersonalBests().score.score | number}}</div>
+            <div class="best-details">
+              {{getPersonalBests().score.wpm}} WPM • {{formatDate(getPersonalBests().score.timestamp)}}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Achievements -->
+    <div class="achievements-section" @slideIn *ngIf="getAllAchievements().length > 0">
+      <h3>🏆 Achievements Unlocked</h3>
+      <div class="achievements-grid">
+        <div *ngFor="let achievement of getAllAchievements()" class="achievement-card" @fadeIn>
+          <div class="achievement-icon">{{achievement.icon}}</div>
+          <div class="achievement-content">
+            <div class="achievement-name">{{achievement.name}}</div>
+            <div class="achievement-description">{{achievement.description}}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Games -->
+    <div class="recent-games" @slideIn>
+      <h3>🗓️ Recent Games</h3>
+      <div class="games-table">
+        <div class="games-header">
+          <div class="header-cell">Date</div>
+          <div class="header-cell">WPM</div>
+          <div class="header-cell">Accuracy</div>
+          <div class="header-cell">Score</div>
+          <div class="header-cell">Category</div>
+          <div class="header-cell">Difficulty</div>
+        </div>
+        
+        <div *ngFor="let game of getRecentGames()" class="game-row">
+          <div class="game-cell">{{formatDate(game.timestamp)}}</div>
+          <div class="game-cell wpm">{{game.wpm}}</div>
+          <div class="game-cell accuracy">{{game.accuracy}}%</div>
+          <div class="game-cell score">{{game.score | number}}</div>
+          <div class="game-cell category">{{game.category}}</div>
+          <div class="game-cell difficulty">{{game.difficulty}}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="profile-actions" @slideIn>
+      <button class="action-btn primary" (click)="goToGame()">
+        🎮 Play Again
+      </button>
+      <button class="action-btn secondary" (click)="goToLeaderboard()">
+        🏆 Leaderboard
+      </button>
+      <button class="action-btn secondary" (click)="exportData()">
+        💾 Export Data
+      </button>
+      <button class="action-btn danger" (click)="clearData()">
+        🗑️ Clear Data
+      </button>
+      <button class="action-btn secondary" (click)="goToHome()">
+        🏠 Home
+      </button>
+    </div>
+  </div>
+</div>

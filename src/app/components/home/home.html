@@ -1,0 +1,121 @@
+<div class="home-container">
+  <div class="hero-section">
+    <h1 class="hero-title">⌨️ Typing Speed Challenge</h1>
+    <p class="hero-subtitle">Master your typing skills with our comprehensive training platform!</p>
+    
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <button class="action-btn primary" routerLink="/game">
+        🎮 Quick Game
+      </button>
+      <button class="action-btn secondary" routerLink="/game-modes">
+        🎯 Game Modes
+      </button>
+      <button class="action-btn secondary" routerLink="/daily-challenges">
+        🏆 Daily Challenges
+      </button>
+    </div>
+    
+    <!-- Features Grid -->
+    <div class="features-grid">
+      <div class="feature-card" routerLink="/game-modes">
+        <div class="feature-icon">🎮</div>
+        <h3>Game Modes</h3>
+        <p>8 different game modes including Time Attack, Endless, Sprint, and more</p>
+        <span class="feature-badge">NEW</span>
+      </div>
+      
+      <div class="feature-card" routerLink="/daily-challenges">
+        <div class="feature-icon">🏆</div>
+        <h3>Daily Challenges</h3>
+        <p>Complete themed daily challenges to earn rewards and improve skills</p>
+        <span class="feature-badge">HOT</span>
+      </div>
+      
+      <div class="feature-card" routerLink="/custom-text">
+        <div class="feature-icon">📝</div>
+        <h3>Custom Texts</h3>
+        <p>Import your own texts from files, URLs, or paste directly</p>
+        <span class="feature-badge">NEW</span>
+      </div>
+      
+      <div class="feature-card" routerLink="/multiplayer">
+        <div class="feature-icon">🌐</div>
+        <h3>Multiplayer</h3>
+        <p>Compete with friends in real-time typing battles</p>
+        <span class="feature-badge">HOT</span>
+      </div>
+      
+      <div class="feature-card" routerLink="/profile">
+        <div class="feature-icon">📊</div>
+        <h3>Analytics Dashboard</h3>
+        <p>Heat maps, progress tracking, and detailed performance insights</p>
+      </div>
+      
+      <div class="feature-card" routerLink="/leaderboard">
+        <div class="feature-icon">🌟</div>
+        <h3>Leaderboards</h3>
+        <p>Compete globally and climb the rankings</p>
+      </div>
+      
+      <div class="feature-card" routerLink="/settings">
+        <div class="feature-icon">⚙️</div>
+        <h3>Customization</h3>
+        <p>Keyboard shortcuts, themes, and accessibility options</p>
+      </div>
+    </div>
+    
+    <!-- Achievement Preview -->
+    <div class="achievement-preview">
+      <h2>🏅 Your Progress</h2>
+      <div class="progress-cards">
+        <div class="progress-card">
+          <div class="progress-icon">💰</div>
+          <div class="progress-info">
+            <h4>Coins Earned</h4>
+            <p class="progress-value">{{ totalCoins }}</p>
+          </div>
+        </div>
+        <div class="progress-card">
+          <div class="progress-icon">⭐</div>
+          <div class="progress-info">
+            <h4>Current Level</h4>
+            <p class="progress-value">{{ currentLevel }}</p>
+          </div>
+        </div>
+        <div class="progress-card">
+          <div class="progress-icon">🏆</div>
+          <div class="progress-info">
+            <h4>Achievements</h4>
+            <p class="progress-value">{{ unlockedAchievements }}/{{ totalAchievements }}</p>
+          </div>
+        </div>
+        <div class="progress-card">
+          <div class="progress-icon">🎯</div>
+          <div class="progress-info">
+            <h4>Daily Progress</h4>
+            <p class="progress-value">{{ dailyProgress }}/3</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Today's Challenge Preview -->
+    <div class="challenge-preview" *ngIf="todaysChallenge">
+      <h2>🌟 Today's Featured Challenge</h2>
+      <div class="challenge-card">
+        <div class="challenge-icon">{{ getChallengeIcon(todaysChallenge.type) }}</div>
+        <div class="challenge-content">
+          <h3>{{ todaysChallenge.title }}</h3>
+          <p>{{ todaysChallenge.description }}</p>
+          <div class="challenge-reward">
+            +{{ todaysChallenge.rewards.points }} coins • {{ todaysChallenge.rewards.badge }}
+          </div>
+        </div>
+        <button class="challenge-btn" routerLink="/daily-challenges">
+          Take Challenge
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,368 @@
+<div class="game-container" role="main" aria-label="Typing Game">
+  <!-- Skip to content link -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  
+  <!-- Loading Component -->
+  <app-loading></app-loading>
+  
+  <!-- Error Feedback Component -->
+  <app-error-feedback [showRealTime]="true" [showSummary]="gameService.gameState().isGameOver" [showHistory]="false"></app-error-feedback>
+  
+  <!-- Game Setup Screen -->
+  <div class="game-setup" 
+       *ngIf="!gameService.gameState().isPlaying && !gameService.gameState().isGameOver" 
+       @slideIn 
+       id="main-content"
+       role="region" 
+       aria-label="Game Setup">
+    <h1>⌨️ Typing Speed Challenge</h1>
+    
+    <!-- Custom Text Mode Banner -->
+    <div class="custom-text-banner" *ngIf="isCustomMode && customText" @fadeIn>
+      <div class="banner-content">
+        <h2>📄 Custom Text Mode</h2>
+        <div class="text-info">
+          <h3>{{customText.name}}</h3>
+          <div class="text-meta">
+            <span class="meta-item">📊 {{customText.wordCount}} words</span>
+            <span class="meta-item">🎯 {{customText.difficulty}}</span>
+            <span class="meta-item">📁 {{customText.category}}</span>
+          </div>
+          <div class="text-preview">{{customText.content | slice:0:150}}{{customText.content.length > 150 ? '...' : ''}}</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="setup-grid" [class.disabled]="isCustomMode">
+      <div class="setup-card">
+        <h3>📚 Word Category</h3>
+        <select class="setup-select" [(ngModel)]="selectedCategory" [disabled]="isCustomMode">
+          <option *ngFor="let category of categories" [value]="category.name">
+            {{category.name}} ({{category.words.length}} words)
+          </option>
+        </select>
+        <small *ngIf="isCustomMode" class="disabled-hint">Automatically set for custom text</small>
+      </div>
+      
+      <div class="setup-card">
+        <h3>⚡ Difficulty Level</h3>
+        <select class="setup-select" [(ngModel)]="selectedDifficulty" [disabled]="isCustomMode">
+          <option *ngFor="let difficulty of difficulties" [value]="difficulty.name">
+            {{difficulty.name}} - {{difficulty.description}}
+          </option>
+        </select>
+        <small *ngIf="isCustomMode" class="disabled-hint">Automatically set for custom text</small>
+      </div>
+      
+      <div class="setup-card">
+        <h3>⏱️ Game Duration</h3>
+        <select class="setup-select" [(ngModel)]="selectedDuration" [disabled]="isCustomMode">
+          <option value="30">30 seconds - Quick Test</option>
+          <option value="60" selected>60 seconds - Standard</option>
+          <option value="120">2 minutes - Extended</option>
+          <option value="300">5 minutes - Marathon</option>
+        </select>
+        <small *ngIf="isCustomMode" class="disabled-hint">Automatically calculated for custom text</small>
+      </div>
+    </div>
+    
+    <button class="start-game-btn" 
+            (click)="startGame()" 
+            @fadeIn
+            aria-describedby="game-instructions">
+      🚀 {{isCustomMode ? 'Start Custom Text Challenge' : 'Start Typing Challenge'}}
+    </button>
+    
+    <div id="game-instructions" class="sr-only">
+      Press this button to start the typing challenge. You will type words as they appear on screen.
+    </div>
+    
+    <div class="exit-custom-mode" *ngIf="isCustomMode">
+      <button class="back-btn" (click)="goToHome()">
+        ← Back to Home
+      </button>
+    </div>
+  </div>
+
+  <!-- Active Game Screen -->
+  <div class="game-active" 
+       *ngIf="gameService.gameState().isPlaying" 
+       @slideIn
+       role="region"
+       aria-label="Active Game"
+       id="main-content">
+    <!-- Game Statistics -->
+    <div class="game-stats" role="region" aria-label="Game Statistics" aria-live="polite">
+      <div class="stat-item">
+        <span class="stat-label">⏱️ Time</span>
+        <span class="stat-value time" 
+              [class.warning]="gameService.gameState().timeRemaining <= 10"
+              [attr.aria-label]="'Time remaining: ' + formatTime(gameService.gameState().timeRemaining)">
+          {{formatTime(gameService.gameState().timeRemaining)}}
+        </span>
+      </div>
+      
+      <div class="stat-item">
+        <span class="stat-label">💨 WPM</span>
+        <span class="stat-value wpm" [attr.aria-label]="'Words per minute: ' + gameService.wpmCurrent()">{{gameService.wpmCurrent()}}</span>
+      </div>
+      
+      <div class="stat-item">
+        <span class="stat-label">🎯 Accuracy</span>
+        <span class="stat-value accuracy">{{gameService.accuracyPercentage()}}%</span>
+      </div>
+      
+      <div class="stat-item">
+        <span class="stat-label">🏆 Score</span>
+        <span class="stat-value score">{{gameService.gameState().score | number}}</span>
+      </div>
+      
+      <div class="stat-item">
+        <span class="stat-label">🔥 Streak</span>
+        <span class="stat-value streak" 
+              [class.hot]="gameService.gameState().streak >= 10">
+          {{gameService.gameState().streak}}
+        </span>
+      </div>
+      
+      <div class="stat-item">
+        <span class="stat-label">📊 Words</span>
+        <span class="stat-value words">{{gameService.gameState().correctWords}}/{{gameService.gameState().totalWords}}</span>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="getProgressPercentage()"></div>
+      </div>
+      <div class="progress-text">
+        {{100 - getProgressPercentage() | number:'1.0-0'}}% remaining
+      </div>
+    </div>
+
+    <!-- Score Multiplier Display -->
+    <div class="multiplier-display" *ngIf="gameService.gameState().multiplier > 1" @fadeIn>
+      <div class="multiplier-text">
+        🚀 {{gameService.gameState().multiplier}}x Multiplier Active!
+      </div>
+    </div>
+
+    <!-- Word Display Area -->
+    <div class="word-display-area" role="region" aria-label="Current Word">
+      <div class="current-word" 
+           [class.correct]="isTypingCorrect" 
+           [class.incorrect]="isTypingIncorrect"
+           [attr.aria-label]="'Current word: ' + gameService.gameState().currentWord">
+        <div class="word-text" aria-live="polite">
+          <span *ngFor="let char of getTypingPreview(); trackBy: trackByIndex; let i = index" 
+                [class]="getCharClass(char, i)">
+            {{char.display}}
+          </span>
+        </div>
+        
+        <!-- Word Timer Bar -->
+        <div class="word-timer-bar">
+          <div class="word-timer-fill" [style.width.%]="getWordTimeProgress()"></div>
+        </div>
+      </div>
+      
+      <!-- Typing Preview -->
+      <div class="feedback-area" *ngIf="userInput">
+        <div class="typing-preview">
+          <span *ngFor="let char of getTypingPreview(); let i = index" 
+                class="char-preview"
+                [class.typed]="char.isTyped"
+                [class.correct]="char.isCorrect"
+                [class.incorrect]="char.isIncorrect"
+                [class.current]="i === userInput.length">
+            {{char.display}}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input Area -->
+    <div class="input-area" role="region" aria-label="Typing Input">
+      <label for="typing-input" class="sr-only">Type the word shown above</label>
+      <input #gameInput
+             id="typing-input"
+             type="text" 
+             class="typing-input"
+             [(ngModel)]="userInput" 
+             (input)="onInputChange($event)"
+             (keydown)="onKeyDown($event)"
+             [disabled]="gameService.gameState().isPaused"
+             placeholder="Type the word above..."
+             autocomplete="off"
+             spellcheck="false"
+             [attr.aria-describedby]="'typing-instructions'"
+             [attr.aria-label]="'Type: ' + gameService.gameState().currentWord">
+      
+      <div id="typing-instructions" class="sr-only">
+        Type the highlighted word. Press Tab to skip a word, or Escape to pause the game.
+      </div>
+      
+      <div class="input-controls">
+        <button class="control-btn pause" 
+                (click)="pauseGame()"
+                [attr.aria-label]="gameService.gameState().isPaused ? 'Resume game' : 'Pause game'">
+          {{gameService.gameState().isPaused ? '▶️ Resume' : '⏸️ Pause'}}
+        </button>
+        <button class="control-btn skip" 
+                (click)="skipWord()" 
+                [disabled]="gameService.gameState().isPaused"
+                aria-label="Skip current word">
+          ⏭️ Skip Word
+        </button>
+        <button class="control-btn quit" 
+                (click)="quitGame()"
+                aria-label="Quit current game">
+          🚪 Quit Game
+        </button>
+      </div>
+    </div>
+
+    <!-- Interactive Keyboard Visualization -->
+    <div class="keyboard-section" *ngIf="!gameService.gameState().isPaused">
+      <app-keyboard-visualization 
+        [currentChar]="gameService.gameState().currentWord.charAt(userInput.length)"
+        [nextChars]="gameService.gameState().currentWord.slice(userInput.length + 1).split('')"
+        [showFingerGuide]="true"
+        [showHands]="false"
+        [compactMode]="true">
+      </app-keyboard-visualization>
+    </div>
+
+    <!-- Mobile Virtual Keyboard -->
+    <app-mobile-keyboard
+      [currentChar]="gameService.gameState().currentWord.charAt(userInput.length)"
+      [nextChars]="gameService.gameState().currentWord.slice(userInput.length + 1).split('')"
+      (keyPress)="onMobileKeyPress($event)"
+      (specialKey)="onMobileSpecialKey($event)">
+    </app-mobile-keyboard>
+
+    <!-- Recent Words Display -->
+    <div class="recent-words" *ngIf="getRecentWords().length > 0">
+      <h4>📝 Recent Words</h4>
+      <div class="word-list">
+        <div *ngFor="let word of getRecentWords()" 
+             class="recent-word"
+             [class.correct]="word.isCorrect"
+             [class.incorrect]="!word.isCorrect">
+          {{word.text}} ({{word.timeTaken | number:'1.1-1'}}s)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pause Overlay -->
+  <div class="pause-overlay" *ngIf="gameService.gameState().isPaused" @fadeIn>
+    <div class="pause-content">
+      <h2>⏸️ Game Paused</h2>
+      <p>Press Resume to continue your typing challenge!</p>
+      <button class="resume-btn" (click)="pauseGame()">
+        ▶️ Resume Game
+      </button>
+    </div>
+  </div>
+
+  <!-- Game Over Screen -->
+  <div class="game-over" 
+       *ngIf="gameService.gameState().isGameOver" 
+       @slideIn
+       role="region"
+       aria-label="Game Results"
+       id="main-content">
+    <div class="results-container">
+      <h1>🎉 Challenge Complete!</h1>
+      
+      <!-- Main WPM Display -->
+      <div class="big-stat" role="img" [attr.aria-label]="'Final result: ' + gameService.wpmCurrent() + ' words per minute'">
+        <span class="big-number">{{gameService.wpmCurrent()}}</span>
+        <span class="big-label">Words Per Minute</span>
+      </div>
+      
+      <!-- Detailed Statistics -->
+      <div class="stats-grid">
+        <div class="stat-box">
+          <span class="stat-number">{{gameService.accuracyPercentage()}}%</span>
+          <span class="stat-title">Accuracy</span>
+        </div>
+        
+        <div class="stat-box">
+          <span class="stat-number">{{gameService.gameState().score | number}}</span>
+          <span class="stat-title">Final Score</span>
+        </div>
+        
+        <div class="stat-box">
+          <span class="stat-number">{{getMaxStreak()}}</span>
+          <span class="stat-title">Best Streak</span>
+        </div>
+        
+        <div class="stat-box">
+          <span class="stat-number">{{gameService.gameState().correctWords}}</span>
+          <span class="stat-title">Correct Words</span>
+        </div>
+        
+        <div class="stat-box">
+          <span class="stat-number">{{gameService.gameState().mistakes}}</span>
+          <span class="stat-title">Mistakes</span>
+        </div>
+        
+        <div class="stat-box">
+          <span class="stat-number">{{getAverageWordTime()}}</span>
+          <span class="stat-title">Avg Time/Word</span>
+        </div>
+      </div>
+
+      <!-- Performance Analysis -->
+      <div class="performance-analysis">
+        <h3>📊 Performance Analysis</h3>
+        
+        <div class="analysis-item" [class]="getPerformanceClass('wpm')">
+          <span class="analysis-icon">💨</span>
+          <span class="analysis-text">{{getWpmAnalysis()}}</span>
+        </div>
+        
+        <div class="analysis-item" [class]="getPerformanceClass('accuracy')">
+          <span class="analysis-icon">🎯</span>
+          <span class="analysis-text">{{getAccuracyAnalysis()}}</span>
+        </div>
+        
+        <div class="analysis-item" [class]="getPerformanceClass('consistency')">
+          <span class="analysis-icon">📈</span>
+          <span class="analysis-text">{{getConsistencyAnalysis()}}</span>
+        </div>
+      </div>
+
+      <!-- Achievements -->
+      <div class="achievements" *ngIf="getAchievements().length > 0">
+        <h3>🏆 Achievements Unlocked</h3>
+        <div class="achievement-list">
+          <div *ngFor="let achievement of getAchievements()" class="achievement-badge" @fadeIn>
+            <span class="achievement-icon">{{achievement.icon}}</span>
+            <span class="achievement-name">{{achievement.name}}</span>
+            <span class="achievement-description">{{achievement.description}}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="game-over-actions">
+        <button class="action-btn primary" (click)="playAgain()">
+          🔄 Play Again
+        </button>
+        <button class="action-btn secondary" (click)="shareResults()">
+          📤 Share Results
+        </button>
+        <button class="action-btn secondary" (click)="viewStats()">
+          📊 View Profile
+        </button>
+        <button class="action-btn secondary" (click)="goToHome()">
+          🏠 Home
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

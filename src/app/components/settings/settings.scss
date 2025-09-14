@@ -1,0 +1,332 @@
+.settings-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  color: white;
+  min-height: calc(100vh - 160px);
+}
+
+.settings-header {
+  text-align: center;
+  margin-bottom: 3rem;
+
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+  }
+}
+
+.settings-section {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+
+  h2 {
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    color: #667eea;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .setting-item {
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      font-weight: 600;
+      flex: 1;
+      max-width: 200px;
+      min-width: 150px;
+    }
+
+    select {
+      padding: 0.8rem 1rem;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.9);
+      color: #333;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      flex: 1;
+      max-width: 300px;
+
+      &:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+      }
+    }
+
+    &.checkbox {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+
+      label {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        cursor: pointer;
+        position: relative;
+        padding-left: 2rem;
+        max-width: none;
+        font-size: 1.1rem;
+
+        input[type="checkbox"] {
+          position: absolute;
+          opacity: 0;
+          cursor: pointer;
+          height: 0;
+          width: 0;
+        }
+
+        .checkmark {
+          position: absolute;
+          left: 0;
+          height: 20px;
+          width: 20px;
+          background: rgba(255, 255, 255, 0.2);
+          border: 2px solid rgba(255, 255, 255, 0.4);
+          border-radius: 4px;
+          transition: all 0.3s ease;
+
+          &:after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 6px;
+            top: 2px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 3px 3px 0;
+            transform: rotate(45deg);
+          }
+        }
+
+        &:hover .checkmark {
+          background: rgba(102, 126, 234, 0.2);
+          border-color: rgba(102, 126, 234, 0.6);
+        }
+
+        input:checked ~ .checkmark {
+          background: #667eea;
+          border-color: #667eea;
+
+          &:after {
+            display: block;
+          }
+        }
+      }
+
+      small {
+        opacity: 0.7;
+        font-size: 0.9rem;
+        margin-left: 2rem;
+      }
+    }
+  }
+
+  .volume-control {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+    max-width: 300px;
+
+    input[type="range"] {
+      flex: 1;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.2);
+      outline: none;
+      cursor: pointer;
+
+      &::-webkit-slider-thumb {
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #667eea;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      }
+
+      &::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #667eea;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      }
+    }
+
+    .volume-value {
+      min-width: 40px;
+      text-align: center;
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .test-sound-btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      background: rgba(102, 126, 234, 0.2);
+      color: #667eea;
+      border: 1px solid rgba(102, 126, 234, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+
+      &:hover {
+        background: rgba(102, 126, 234, 0.3);
+        transform: translateY(-1px);
+      }
+    }
+  }
+
+  .data-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    .import-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+    }
+
+    .import-btn {
+      cursor: pointer;
+      display: inline-block;
+    }
+  }
+}
+
+.settings-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+
+  .action-btn {
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+
+    &.primary {
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    &.secondary {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    &.danger {
+      background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+      color: white;
+      box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    }
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .settings-container {
+    padding: 1rem;
+  }
+
+  .settings-section {
+    padding: 1.5rem;
+
+    .setting-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.8rem;
+
+      label {
+        max-width: none;
+        min-width: auto;
+      }
+
+      select {
+        width: 100%;
+        max-width: none;
+      }
+
+      .volume-control {
+        width: 100%;
+        max-width: none;
+      }
+    }
+  }
+
+  .data-actions {
+    flex-direction: column;
+    align-items: center;
+
+    button,
+    .import-btn {
+      width: 200px;
+    }
+  }
+
+  .settings-actions {
+    flex-direction: column;
+    align-items: center;
+
+    .action-btn {
+      width: 200px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .settings-header h1 {
+    font-size: 2rem;
+  }
+
+  .settings-section {
+    padding: 1rem;
+
+    h2 {
+      font-size: 1.3rem;
+    }
+  }
+}

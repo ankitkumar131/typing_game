@@ -1,0 +1,128 @@
+<div class="game-modes-container">
+  <!-- Header -->
+  <div class="modes-header">
+    <h2>🎮 Game Modes</h2>
+    <p class="subtitle">Choose your challenge and test your typing skills!</p>
+  </div>
+
+  <!-- Category Filter -->
+  <div class="category-filter" [@slideIn]>
+    <button 
+      *ngFor="let category of categories; trackBy: trackByCategory"
+      class="category-btn"
+      [class.active]="selectedCategory === category.id"
+      (click)="selectCategory(category.id)"
+    >
+      <span class="category-icon">{{ category.icon }}</span>
+      <span class="category-name">{{ category.name }}</span>
+    </button>
+  </div>
+
+  <!-- Game Modes Grid -->
+  <div class="modes-grid">
+    <div 
+      *ngFor="let mode of getFilteredModes(); trackBy: trackByMode"
+      class="mode-card"
+      [class]="getModeStatusClass(mode)"
+      [@bounce]
+    >
+      <!-- Lock Overlay for locked modes -->
+      <div *ngIf="!mode.unlocked" class="lock-overlay">
+        <div class="lock-icon">🔒</div>
+        <div class="unlock-requirement">{{ getUnlockRequirement(mode) }}</div>
+      </div>
+
+      <!-- Mode Header -->
+      <div class="mode-header">
+        <div class="mode-icon">{{ mode.icon }}</div>
+        <div class="mode-info">
+          <h3 class="mode-name">{{ mode.name }}</h3>
+          <p class="mode-description">{{ mode.description }}</p>
+        </div>
+        <div class="difficulty-badge" 
+             [style.background-color]="getDifficultyColor(getDifficultyBadge(mode))">
+          {{ getDifficultyBadge(mode) }}
+        </div>
+      </div>
+
+      <!-- Mode Settings -->
+      <div class="mode-settings">
+        <div class="setting-item" *ngIf="mode.settings.timeLimit">
+          <span class="setting-label">⏱️ Time Limit:</span>
+          <span class="setting-value">{{ mode.settings.timeLimit }}s</span>
+        </div>
+        <div class="setting-item" *ngIf="mode.settings.wordLimit">
+          <span class="setting-label">📝 Word Limit:</span>
+          <span class="setting-value">{{ mode.settings.wordLimit }}</span>
+        </div>
+        <div class="setting-item" *ngIf="mode.settings.livesLimit">
+          <span class="setting-label">❤️ Lives:</span>
+          <span class="setting-value">{{ mode.settings.livesLimit }}</span>
+        </div>
+        <div class="setting-item" *ngIf="mode.settings.difficultyProgression">
+          <span class="setting-label">📈 Progressive:</span>
+          <span class="setting-value">Yes</span>
+        </div>
+      </div>
+
+      <!-- Custom Rules -->
+      <div class="custom-rules" *ngIf="mode.settings.customRules && mode.settings.customRules.length > 0">
+        <h4>Rules:</h4>
+        <ul>
+          <li *ngFor="let rule of mode.settings.customRules">{{ rule }}</li>
+        </ul>
+      </div>
+
+      <!-- Mode Statistics -->
+      <div class="mode-stats" *ngIf="mode.unlocked">
+        <div class="stat-row">
+          <span class="stat-label">Status:</span>
+          <span class="stat-value" [class]="getModeStatusClass(mode)">
+            {{ getModeStatsText(mode) }}
+          </span>
+        </div>
+        <div class="stat-row" *ngIf="mode.highScore">
+          <span class="stat-label">High Score:</span>
+          <span class="stat-value">{{ getBestScoreText(mode) }}</span>
+        </div>
+        <div class="stat-row" *ngIf="mode.bestWpm">
+          <span class="stat-label">Best WPM:</span>
+          <span class="stat-value">{{ getBestWpmText(mode) }}</span>
+        </div>
+        <div class="stat-row" *ngIf="mode.bestAccuracy">
+          <span class="stat-label">Best Accuracy:</span>
+          <span class="stat-value">{{ getBestAccuracyText(mode) }}</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="mode-actions">
+        <button 
+          *ngIf="mode.unlocked"
+          class="btn btn-primary"
+          (click)="startGameMode(mode)"
+        >
+          <span class="btn-icon">🚀</span>
+          Start Game
+        </button>
+        <button 
+          *ngIf="mode.unlocked && mode.timesPlayed > 0"
+          class="btn btn-secondary"
+          (click)="viewModeStats(mode)"
+        >
+          📊 Stats
+        </button>
+        <div *ngIf="!mode.unlocked" class="locked-message">
+          Complete requirements to unlock
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Back Button -->
+  <div class="modes-footer">
+    <button class="btn btn-back" (click)="goBack()">
+      ← Back to Home
+    </button>
+  </div>
+</div>

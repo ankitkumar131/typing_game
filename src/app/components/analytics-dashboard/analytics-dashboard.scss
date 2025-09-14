@@ -1,0 +1,200 @@
+.analytics-dashboard {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.period-btn {
+  padding: 0.5rem 1rem;
+  margin: 0.25rem;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.period-btn.active {
+  background: #007acc;
+  color: white;
+}
+
+.chart-container {
+  margin: 1rem 0;
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.chart-bars {
+  display: flex;
+  gap: 4px;
+  height: 200px;
+  align-items: end;
+  margin: 1rem 0;
+}
+
+.chart-bar {
+  flex: 1;
+  background: #007acc;
+  min-height: 4px;
+  border-radius: 2px;
+}
+
+.chart-labels {
+  display: flex;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.chart-label {
+  flex: 1;
+  text-align: center;
+}
+
+.analytics-section {
+  margin: 2rem 0;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.section-header h2 {
+  margin: 0 0 1rem 0;
+  color: #333;
+}
+
+.error-analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.analysis-card {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+}
+
+.analysis-card.full-width {
+  grid-column: 1 / -1;
+}
+
+.biometric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.biometric-card {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+}
+
+.biometric-card.full-width {
+  grid-column: 1 / -1;
+}
+
+.metric {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 4px;
+}
+
+.metric-label {
+  font-weight: 500;
+  color: #666;
+}
+
+.metric-value {
+  font-weight: 600;
+  color: #333;
+}
+
+.hand-bar {
+  margin: 0.5rem 0;
+  background: #e9ecef;
+  border-radius: 4px;
+  height: 24px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.hand-fill {
+  height: 100%;
+  background: #007acc;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.hand-label {
+  position: absolute;
+  left: 8px;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 500;
+  z-index: 1;
+}
+
+.predictive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.prediction-card {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+}
+
+.prediction-card.full-width {
+  grid-column: 1 / -1;
+}
+
+.comparative-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.comparative-card {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+}
+
+.percentile-bar {
+  background: #e9ecef;
+  height: 20px;
+  border-radius: 10px;
+  position: relative;
+  margin: 0.5rem 0;
+}
+
+.percentile-fill {
+  height: 100%;
+  background: #007acc;
+  border-radius: 10px;
+  transition: width 0.3s ease;
+}
+
+.percentile-text {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 500;
+}

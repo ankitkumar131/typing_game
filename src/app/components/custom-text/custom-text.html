@@ -1,0 +1,211 @@
+<div class="custom-text-container">
+  <!-- Header -->
+  <div class="header">
+    <h2>📝 Custom Text Import</h2>
+    <p class="subtitle">Import your own texts for typing practice</p>
+  </div>
+
+  <!-- Import Methods -->
+  <div class="import-section">
+    <div class="import-tabs">
+      <button class="tab-btn active" data-tab="text">✍️ Paste Text</button>
+      <button class="tab-btn" data-tab="file">📁 Upload File</button>
+      <button class="tab-btn" data-tab="url">🌐 From URL</button>
+    </div>
+
+    <!-- Paste Text Tab -->
+    <div class="tab-content active" data-tab="text">
+      <div class="form-group">
+        <label for="textName">Text Name:</label>
+        <input
+          id="textName"
+          type="text"
+          [(ngModel)]="textName"
+          placeholder="Enter a name for your text"
+          class="form-input"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="category">Category:</label>
+        <select id="category" [(ngModel)]="selectedCategory" class="form-select">
+          <option *ngFor="let category of categories" [value]="category">
+            {{ category }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="tags">Tags (comma-separated):</label>
+        <input
+          id="tags"
+          type="text"
+          [(ngModel)]="tags"
+          placeholder="typing, practice, custom"
+          class="form-input"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="textContent">Text Content:</label>
+        <textarea
+          id="textContent"
+          [(ngModel)]="textContent"
+          placeholder="Paste your text here..."
+          class="form-textarea"
+          rows="8"
+        ></textarea>
+      </div>
+
+      <button
+        class="btn btn-primary"
+        [disabled]="!textName || !textContent || isImporting"
+        (click)="importFromText()"
+      >
+        {{ isImporting ? 'Importing...' : 'Import Text' }}
+      </button>
+    </div>
+
+    <!-- Upload File Tab -->
+    <div class="tab-content" data-tab="file">
+      <div class="file-upload">
+        <input
+          type="file"
+          accept=".txt,.md,.json"
+          (change)="onFileSelected($event)"
+          class="file-input"
+          id="fileInput"
+        />
+        <label for="fileInput" class="file-label">
+          <span class="file-icon">📁</span>
+          <span>Choose File</span>
+        </label>
+        <div *ngIf="selectedFile" class="file-info">
+          <strong>{{ selectedFile.name }}</strong>
+          <span>({{ formatFileSize(selectedFile.size) }})</span>
+        </div>
+      </div>
+
+      <button
+        class="btn btn-primary"
+        [disabled]="!selectedFile || isImporting"
+        (click)="importFromFile()"
+      >
+        {{ isImporting ? 'Importing...' : 'Import File' }}
+      </button>
+    </div>
+
+    <!-- URL Tab -->
+    <div class="tab-content" data-tab="url">
+      <div class="form-group">
+        <label for="urlInput">URL:</label>
+        <input
+          id="urlInput"
+          type="url"
+          [(ngModel)]="urlToImport"
+          placeholder="https://example.com/text.txt"
+          class="form-input"
+        />
+      </div>
+
+      <button
+        class="btn btn-primary"
+        [disabled]="!urlToImport || isImporting"
+        (click)="importFromUrl()"
+      >
+        {{ isImporting ? 'Importing...' : 'Import from URL' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Import Result -->
+  <div *ngIf="importResult" class="import-result" 
+       [class.success]="importResult.success" 
+       [class.error]="!importResult.success">
+    <div class="result-icon">
+      {{ importResult.success ? '✅' : '❌' }}
+    </div>
+    <div class="result-content">
+      <div *ngIf="importResult.success" class="success-message">
+        <strong>Success!</strong> Text imported successfully.
+        <div *ngIf="importResult.warnings && importResult.warnings.length > 0" class="warnings">
+          <strong>Warnings:</strong>
+          <ul>
+            <li *ngFor="let warning of importResult.warnings">{{ warning }}</li>
+          </ul>
+        </div>
+      </div>
+      <div *ngIf="!importResult.success" class="error-message">
+        <strong>Error:</strong> {{ importResult.error }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Texts List -->
+  <div class="texts-section">
+    <div class="section-header">
+      <h3>📚 Your Custom Texts ({{ customTexts.length }})</h3>
+      <button class="btn btn-secondary" (click)="exportTexts()">
+        📤 Export All
+      </button>
+    </div>
+
+    <div class="texts-grid">
+      <div *ngFor="let text of customTexts" class="text-card">
+        <div class="text-header">
+          <h4 class="text-name">{{ text.name }}</h4>
+          <div class="difficulty-badge" [style.background-color]="getDifficultyColor(text.difficulty)">
+            {{ text.difficulty }}
+          </div>
+        </div>
+
+        <div class="text-meta">
+          <span class="category">{{ text.category }}</span>
+          <span class="word-count">{{ text.wordCount }} words</span>
+          <span class="length">{{ getWordCountText(text.wordCount) }}</span>
+        </div>
+
+        <div class="text-tags" *ngIf="text.tags.length > 0">
+          <span *ngFor="let tag of text.tags" class="tag">{{ tag }}</span>
+        </div>
+
+        <div class="text-stats" *ngIf="text.timesUsed > 0">
+          <div class="stat">
+            <span class="stat-label">Used:</span>
+            <span class="stat-value">{{ text.timesUsed }} times</span>
+          </div>
+          <div class="stat" *ngIf="text.averageWpm">
+            <span class="stat-label">Avg WPM:</span>
+            <span class="stat-value">{{ text.averageWpm }}</span>
+          </div>
+          <div class="stat" *ngIf="text.averageAccuracy">
+            <span class="stat-label">Avg Accuracy:</span>
+            <span class="stat-value">{{ text.averageAccuracy }}%</span>
+          </div>
+        </div>
+
+        <div class="text-actions">
+          <button class="btn btn-primary btn-sm" (click)="useText(text)">
+            🚀 Practice
+          </button>
+          <button class="btn btn-danger btn-sm" (click)="deleteText(text.id)">
+            🗑️ Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="customTexts.length === 0" class="empty-state">
+      <div class="empty-icon">📝</div>
+      <h3>No Custom Texts Yet</h3>
+      <p>Import your first custom text using one of the methods above.</p>
+    </div>
+  </div>
+
+  <!-- Back Button -->
+  <div class="footer">
+    <button class="btn btn-back" (click)="goBack()">
+      ← Back to Home
+    </button>
+  </div>
+</div>
